@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Tra cứu Google đơn giản</title>
-  <!-- Font Awesome để lấy biểu tượng kính lúp -->
+  <title>Tra cứu nhanh</title>
+  <!-- Font Awesome cho biểu tượng kính lúp -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     /* Reset & bố cục tối giản */
@@ -47,7 +47,7 @@
     }
 
     .search-box button {
-      background: #4285F4; /* Màu xanh Google */
+      background: #4285F4; /* Xanh Google */
       border: none;
       color: #fff;
       padding: 0 20px;
@@ -57,76 +57,56 @@
       justify-content: center;
     }
 
-    .search-box button i {
-      font-size: 1.1rem;
-    }
-
-    #resultContainer {
-      width: 80%;
-      max-width: 960px;
-      height: 70vh;
-      display: none; /* Ẩn cho tới khi người dùng tìm kiếm */
-      border: 1px solid #dcdcdc;
-      border-radius: 4px;
-      background: #fff;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-
-    #resultContainer iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    /* Hiệu ứng hover nhỏ cho nút */
     .search-box button:hover {
       background: #2a66d9;
+    }
+
+    .search-box button i {
+      font-size: 1.1rem;
     }
   </style>
 </head>
 <body>
-  <h1>Tra cứu Google</h1>
+  <h1>Tra cứu nhanh</h1>
 
   <div class="search-box">
-    <input type="text" id="query" placeholder="Nhập từ khóa..." />
+    <input type="text" id="query" placeholder="Nhập từ khóa hoặc URL (ví dụ youtube.com)..." />
     <button id="searchBtn" title="Tìm kiếm (Enter)">
       <i class="fa fa-search"></i>
     </button>
   </div>
 
-  <!-- Hộp hiển thị kết quả -->
-  <div id="resultContainer"></div>
-
   <script>
     const btn = document.getElementById("searchBtn");
     const input = document.getElementById("query");
-    const container = document.getElementById("resultContainer");
 
-    function performSearch() {
-      const q = input.value.trim();
-      if (!q) return; // Không làm gì nếu ô trống
-
-      /*
-       * Google chặn iframe ở nhiều trình duyệt do chính sách bảo mật.
-       * Thủ thuật thêm tham số "igu=1" đôi khi cho phép nhúng (không đảm bảo 100%).
-       * Nếu iframe không hiển thị, bạn có thể mở tab mới thay vì nhúng:
-       *   window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, "_blank");
-       */
-      container.innerHTML = `
-        <iframe src="https://www.google.com/search?q=${encodeURIComponent(q)}&igu=1"></iframe>
-      `;
-      container.style.display = "block";
+    /**
+     * Xác định xem chuỗi có phải URL không:
+     * - Có dấu chấm và không có dấu cách → coi là URL.
+     */
+    function isLikelyURL(str) {
+      return /\./.test(str) && !/\s/.test(str);
     }
 
-    // Sự kiện nhấn nút
+    function performSearch() {
+      const raw = input.value.trim();
+      if (!raw) return;
+
+      if (isLikelyURL(raw)) {
+        // Bảo đảm có giao thức
+        const url = raw.startsWith("http://") || raw.startsWith("https://") ? raw : `https://${raw}`;
+        window.open(url, "_blank");          // Mở trang trong tab mới
+      } else {
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(raw)}`, "_blank");
+      }
+    }
+
+    // Nhấn nút
     btn.addEventListener("click", performSearch);
 
-    // Sự kiện Enter trong ô input
+    // Nhấn Enter
     input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        performSearch();
-      }
+      if (e.key === "Enter") performSearch();
     });
   </script>
 </body>
